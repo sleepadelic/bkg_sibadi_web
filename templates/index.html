@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Безопасный и комфортный город</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.0/dist/css/uikit.min.css"/>
+    <link rel="stylesheet" href="{% static 'css/style.min.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+</head>
+<body>
+<header class="header">
+    <div class="container">
+        <div class="header__wraper">
+            <div class="header__menu">
+                <ul class="header__nav" id="navbarContent">
+                    <li class="header__nav-item"><a href="#">Главная</a></li>
+                    <li class="header__nav-item"><a href="citizensAppeals.html">Обращения граждан</a></li>
+                    <!-- <li class="header__nav-item"><a href="#">Контакты</a></li> -->
+                </ul>
+            </div>
+            <div class="side">
+                <button class="button button_header" onclick="location.href='apeal.html'">Сообщить о проблеме</button>
+                <a href="https://sibadi.org" target="_blank"><img src="{% static 'img/SibADI_logo.png' %}" alt="СИБАДИ"
+                                                                  class="side__sib-logo"></a>
+                <a href="https://t.me/bkg_sibadibot" target="_blank"><img src="{% static 'img/qr.png' %}"
+                                                                          alt="Телеграм бот" class="side__qr"></a>
+            </div>
+        </div>
+    </div>
+</header>
+<section class="promo">
+    <div class="container">
+        <h1>Безопасный и комфортный город</h1>
+        <h2>Омск, Советский округ</h2>
+        <p>Проект направлен на создание комфортной и безопасной среды для проживания в городе Омске. Позволяет горожанам
+            принять участие в жизни своего города и округа, выявить проблемы, повлиять на качество жизни, обеспечить
+            возможности взаимодействия с государственными и муниципальными властями Омска для поиска решений и
+            реализации гражданских инициатив на информационном, консультационном и методическом уровнях.</p>
+    </div>
+</section>
+<section class="stats">
+    <div class="container">
+        <div class="stats__wraper">
+            <div class="stats__item stats__item_road">
+                <div class="stats__number stats__number_road">{{ problems_count }}</div>
+                <div class="stats__descr">Безопасность на дорогах</div>
+                <hr>
+                <button class="button button_road" onclick="location.href='apeal.html'">Сообщить о проблеме</button>
+            </div>
+            <div class="stats__item stats__item_live">
+                <div class="stats__number stats__number_live">112</div>
+                <div class="stats__descr">Комфортность проживания</div>
+                <hr>
+                <button class="button button_live" onclick="location.href='apeal.html'">Сообщить о проблеме</button>
+            </div>
+            <div class="stats__item stats__item_solved">
+                <div class="stats__number stats__number_solved">{{ resolved_problems }}</div>
+                <div class="stats__descr">Решенные проблемы</div>
+                <hr>
+                <button class="button button_solved">Просмотреть список</button>
+            </div>
+        </div>
+        <p>Также, вы можете подать свое обращение в нашем телеграм-боте <a href="https://t.me/bkg_sibadibot"
+                                                                           target="_blank">https://t.me/bkg_sibadibot</a>
+        </p>
+    </div>
+</section>
+
+<section class="map" id="mapid" style="height: 400px; margin: 50px">
+    <div class="container">
+        {#            <script type="text/javascript" charset="utf-8" async#}
+        {#            src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ab02f5bb7ef00f5ce40b2b7ff25c85fcbeb539c8296cd89e973032043df5831fe&amp;width=100%&amp;height=600&amp;lang=ru_RU&amp;scroll=true">#}
+        {#            </script>#}
+
+        <script>
+
+            var mymap = L.map('mapid').setView([55.0858, 73.3022], 11);
+
+            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+                maxZoom: 18,
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+                    'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                id: 'mapbox/streets-v11',
+                tileSize: 512,
+                zoomOffset: -1
+            }).addTo(mymap);
+            {% for isa in iss %}
+                {% if isa.geo %}
+                    L.marker([{{ isa.geo }}]).addTo(mymap).bindPopup("<b>{{ isa.description }}</b><br> {{ isa.creation_date }}").openPopup();
+
+                    L.circle([{{ isa.geo }}], {
+                        color: 'red',
+                        fillColor: '#f03',
+                        fillOpacity: 0.5,
+                        radius: 5
+                    }).addTo(mymap);
+                {% endif %}
+
+            {% endfor %}
+
+
+            L.circle([51.508, -0.11], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).addTo(mymap);
+
+            {#L.polygon([#}
+            {#    [51.509, -0.08],#}
+            {#    [51.503, -0.06],#}
+            {#    [51.51, -0.047]#}
+            {#]).addTo(mymap);#}
+
+
+        </script>
+    </div>
+</section>
+<section class="solved">
+    <div class="container">
+        <h2>Уже решено:</h2>
+        <div class="uk-position-relative uk-visible-toggle " tabindex="-1" uk-slider="center: true; finite: true">
+            <ul class="uk-slider-items uk-grid uk-grid-match" uk-height-viewport="offset-top: true; offset-bottom: 30">
+                <li class="uk-width-3-4 uk-dark">
+                    <div class="uk-cover-container ">
+                        <img src="img/slides/1.jfif" alt="" uk-cover>
+                        <div class="uk-position-bottom-center uk-panel"><h1 class="slider-descr">Менделеева, 24. Люк
+                            закрыли</h1></div>
+                    </div>
+                </li>
+                <li class="uk-width-3-4 uk-dark">
+                    <div class="uk-cover-container">
+                        <img src="img/slides/2.jfif" alt="" uk-cover>
+                        <div class="uk-position-bottom-center uk-panel"><h1 class="slider-descr">4я-Поселковая ЖКХ
+                            «СЕРВИС» вывез мешки мусора.</h1></div>
+                    </div>
+                </li>
+                <li class="uk-width-3-4 uk-dark">
+                    <div class="uk-cover-container">
+                        <img src="img/slides/3.jfif" alt="" uk-cover>
+                        <div class="uk-position-bottom-center uk-panel"><h1 class="slider-descr">Менделеева, д 40/12 к 2
+                            Перевренутый знак. Исправили!</h1></div>
+                    </div>
+                </li>
+                <li class="uk-width-3-4 uk-dark">
+                    <div class="uk-cover-container">
+                        <img src="img/slides/4.jfif" alt="" uk-cover>
+                        <div class="uk-position-bottom-center uk-panel"><h1 class="slider-descr">Блюхера , 8 Убрали
+                            около территории для мусора</h1></div>
+                    </div>
+                </li>
+            </ul>
+            <a class="uk-position-center-left uk-position-small uk-hidden-hover uk-light" href="#" uk-slidenav-previous
+               uk-slider-item="previous"></a>
+            <a class="uk-position-center-right uk-position-small uk-hidden-hover uk-light" href="#" uk-slidenav-next
+               uk-slider-item="next"></a>
+        </div>
+    </div>
+</section>
+<footer class="footer">
+    <div class="footer__wraper">
+        <div class="footer__item">
+            Контакты и обращения <br>
+            8-950-783-62-65 <br>
+            bkg@sibadi.org
+        </div>
+        <div class="footer__item">
+            2021 ФГБОУ ВО «СибАДИ» <br>
+            644080, г. Омск, пр. Мира 5
+        </div>
+        <div class="footer__item">
+            <a style="color: white; text-decoration: none;" href=""> Техподдержка сайта <br> </a>
+            <a style="color: white; text-decoration: none;" href=""> Карта сайта<br> </a>
+        </div>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.7.0/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.7.0/dist/js/uikit-icons.min.js"></script>
+</body>
+</html>

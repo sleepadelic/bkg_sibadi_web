@@ -1,0 +1,19 @@
+.solved{
+    margin: 50px 0 50px 0;
+    h2{
+        font-weight: bold;
+        color: $title_color;
+        font-size: 1.75rem;
+    }
+    .slider-descr{
+        /* transform: translateY(50px); */
+        display: block;
+        margin: 0 auto;
+        width: 103%;
+        background-color: #fff;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        text-align: center;
+        font-size: 26px;
+    }
+}
