@@ -17,18 +17,20 @@
             crossorigin=""></script>
 </head>
 <body>
-<header class="header">
+<header class="header uk-box-shadow-medium">
     <div class="container">
         <div class="header__wraper">
-            <div class="header__menu">
+            <div class="header__menu ">
                 <ul class="header__nav" id="navbarContent">
-                    <li class="header__nav-item"><a href="#">Главная</a></li>
-                    <li class="header__nav-item"><a href="citizensAppeals.html">Обращения граждан</a></li>
+                    <li class="header__nav-item"><a href="{% url 'index' %}">Главная</a></li>
+                    <li class="header__nav-item"><a href="{% url 'issues_list' %}">Обращения граждан</a></li>
                     <!-- <li class="header__nav-item"><a href="#">Контакты</a></li> -->
                 </ul>
             </div>
             <div class="side">
-                <button class="button button_header" onclick="location.href='apeal.html'">Сообщить о проблеме</button>
+                <button class="button button_header" onclick="location.href='https://t.me/bkg_sibadibot'">Сообщить о
+                    проблеме
+                </button>
                 <a href="https://sibadi.org" target="_blank"><img src="{% static 'img/SibADI_logo.png' %}" alt="СИБАДИ"
                                                                   class="side__sib-logo"></a>
                 <a href="https://t.me/bkg_sibadibot" target="_blank"><img src="{% static 'img/qr.png' %}"
@@ -50,40 +52,39 @@
 <section class="stats">
     <div class="container">
         <div class="stats__wraper">
-            <div class="stats__item stats__item_road">
+            <div class="stats__item stats__item_road uk-box-shadow-medium">
                 <div class="stats__number stats__number_road">{{ problems_count }}</div>
                 <div class="stats__descr">Безопасность на дорогах</div>
                 <hr>
                 <button class="button button_road" onclick="location.href='apeal.html'">Сообщить о проблеме</button>
             </div>
-            <div class="stats__item stats__item_live">
+            <div class="stats__item stats__item_live uk-box-shadow-medium">
                 <div class="stats__number stats__number_live">112</div>
-                <div class="stats__descr">Комфортность проживания</div>
+                <div class="stats__descr">Комфорт проживания</div>
                 <hr>
                 <button class="button button_live" onclick="location.href='apeal.html'">Сообщить о проблеме</button>
             </div>
-            <div class="stats__item stats__item_solved">
+            <div class="stats__item stats__item_solved uk-box-shadow-medium">
                 <div class="stats__number stats__number_solved">{{ resolved_problems }}</div>
                 <div class="stats__descr">Решенные проблемы</div>
                 <hr>
                 <button class="button button_solved">Просмотреть список</button>
             </div>
         </div>
-        <p>Также, вы можете подать свое обращение в нашем телеграм-боте <a href="https://t.me/bkg_sibadibot"
-                                                                           target="_blank">https://t.me/bkg_sibadibot</a>
+        <p uk-alert class="uk-alert-primary">Вы можете подать свое обращение в нашем телеграм-боте
+            <a href="https://t.me/bkg_sibadibot"
+               target="_blank">https://t.me/bkg_sibadibot
+            </a>
         </p>
     </div>
 </section>
 
-<section class="map" id="mapid" style="height: 400px; margin: 50px">
+<section class="map uk-box-shadow-medium uk-border-rounded " id="mapid"
+         style="height: border-box; margin: 100px; margin-top: 50px; margin-bottom: 50px;">
     <div class="container">
-        {#            <script type="text/javascript" charset="utf-8" async#}
-        {#            src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ab02f5bb7ef00f5ce40b2b7ff25c85fcbeb539c8296cd89e973032043df5831fe&amp;width=100%&amp;height=600&amp;lang=ru_RU&amp;scroll=true">#}
-        {#            </script>#}
 
         <script>
-
-            var mymap = L.map('mapid').setView([55.0858, 73.3022], 11);
+            var mymap = L.map('mapid').setView([55.0858, 73.3022], 12);
 
             L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
                 maxZoom: 18,
@@ -95,69 +96,49 @@
             }).addTo(mymap);
             {% for isa in iss %}
                 {% if isa.geo %}
-                    L.marker([{{ isa.geo }}]).addTo(mymap).bindPopup("<b>{{ isa.description }}</b><br> {{ isa.creation_date }}").openPopup();
+                    {% ifequal isa.status.name 'Решено' %}
+                        L.marker([{{ isa.geo }}]).addTo(mymap).bindPopup("<b>{{ isa.description }}</b><br> {{ isa.creation_date }}<hr/><b>Состояние: {{ isa.status }}</b>").openPopup();
+                        L.circle([{{ isa.geo }}], {
+                            color: 'green',
+                            fillColor: '#27e55d',
+                            fillOpacity: 0.5,
+                            radius: 10
+                        }).addTo(mymap);
 
-                    L.circle([{{ isa.geo }}], {
-                        color: 'red',
-                        fillColor: '#f03',
-                        fillOpacity: 0.5,
-                        radius: 5
-                    }).addTo(mymap);
+                    {% else %}
+                        L.marker([{{ isa.geo }}]).addTo(mymap).bindPopup("<b>{{ isa.description }}</b><br> {{ isa.creation_date }}<hr/><b>Состояние: {{ isa.status }}</b>").openPopup();
+                        L.circle([{{ isa.geo }}], {
+                            color: 'red',
+                            fillColor: '#f03',
+                            fillOpacity: 0.5,
+                            radius: 5
+                        }).addTo(mymap);
+                    {% endifequal %}
                 {% endif %}
 
             {% endfor %}
-
-
-            L.circle([51.508, -0.11], {
-                color: 'red',
-                fillColor: '#f03',
-                fillOpacity: 0.5,
-                radius: 500
-            }).addTo(mymap);
-
-            {#L.polygon([#}
-            {#    [51.509, -0.08],#}
-            {#    [51.503, -0.06],#}
-            {#    [51.51, -0.047]#}
-            {#]).addTo(mymap);#}
-
 
         </script>
     </div>
 </section>
 <section class="solved">
-    <div class="container">
+    <div class="container ">
         <h2>Уже решено:</h2>
         <div class="uk-position-relative uk-visible-toggle " tabindex="-1" uk-slider="center: true; finite: true">
-            <ul class="uk-slider-items uk-grid uk-grid-match" uk-height-viewport="offset-top: true; offset-bottom: 30">
-                <li class="uk-width-3-4 uk-dark">
-                    <div class="uk-cover-container ">
-                        <img src="img/slides/1.jfif" alt="" uk-cover>
-                        <div class="uk-position-bottom-center uk-panel"><h1 class="slider-descr">Менделеева, 24. Люк
-                            закрыли</h1></div>
-                    </div>
-                </li>
-                <li class="uk-width-3-4 uk-dark">
-                    <div class="uk-cover-container">
-                        <img src="img/slides/2.jfif" alt="" uk-cover>
-                        <div class="uk-position-bottom-center uk-panel"><h1 class="slider-descr">4я-Поселковая ЖКХ
-                            «СЕРВИС» вывез мешки мусора.</h1></div>
-                    </div>
-                </li>
-                <li class="uk-width-3-4 uk-dark">
-                    <div class="uk-cover-container">
-                        <img src="img/slides/3.jfif" alt="" uk-cover>
-                        <div class="uk-position-bottom-center uk-panel"><h1 class="slider-descr">Менделеева, д 40/12 к 2
-                            Перевренутый знак. Исправили!</h1></div>
-                    </div>
-                </li>
-                <li class="uk-width-3-4 uk-dark">
-                    <div class="uk-cover-container">
-                        <img src="img/slides/4.jfif" alt="" uk-cover>
-                        <div class="uk-position-bottom-center uk-panel"><h1 class="slider-descr">Блюхера , 8 Убрали
-                            около территории для мусора</h1></div>
-                    </div>
-                </li>
+            <ul class="uk-slider-items uk-grid uk-grid-match uk-box-shadow-medium uk-border-rounded"
+                uk-height-viewport="offset-top: true; offset-bottom: 30">
+                {% for res_iss in last_resolved_issues %}
+                    <li class="uk-width-3-4 uk-dark">
+                        <div class="uk-cover-container ">
+                            {% if res_iss.resolve_image %}
+                                <img src="{{ res_iss.resolve_image.url }}" alt="" uk-cover>
+                            {% endif %}
+
+                            <div class="uk-position-bottom-center uk-panel"><h1
+                                    class="slider-descr">{{ res_iss.resolve_description }}</h1></div>
+                        </div>
+                    </li>
+                {% endfor %}
             </ul>
             <a class="uk-position-center-left uk-position-small uk-hidden-hover uk-light" href="#" uk-slidenav-previous
                uk-slider-item="previous"></a>

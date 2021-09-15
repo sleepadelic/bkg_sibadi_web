@@ -9,9 +9,9 @@ def load_from_yaml(filepath):
     with open(filepath, "r", encoding="utf-8") as ff:
         return yaml.load(ff, Loader=yaml.UnsafeLoader)
 
-def load_issues():
+def load_issues(filepath):
 
-    issues = load_from_yaml('bkg/data/ад.yaml')
+    issues = load_from_yaml(filepath)
     iss:Issue
     for iss in issues:
         web_iss: bkg.models.Issue()

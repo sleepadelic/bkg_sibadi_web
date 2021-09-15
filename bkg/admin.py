@@ -7,13 +7,21 @@ from django.utils.translation import ngettext
 
 
 class IssueAdmin(admin.ModelAdmin):
-    list_display = ('description', 'creation_date', 'type', 'status')
+    list_display = ('description', 'creation_date', 'type', 'status', 'is_published')
     list_filter =  ('creation_date', 'type', 'status')
     search_fields = ['description', 'creation_date', 'type__name', 'status__name']
-    actions = ['make_published']
-    @admin.action(description='Генерация отчёта')
+    actions = ['make_published', 'make_not_published']
+    @admin.action(description='Опубликовать выбранные')
     def make_published(self, request, queryset):
-        self.message_user(request, ngettext("hte", "htes", 0) , messages.SUCCESS)
+        queryset.update(is_published=True)
+        self.message_user(request, ngettext("Выбранное обращение опубликовано", f"Выбранные обращения опубликованы {len(queryset)}", len(queryset)) , messages.SUCCESS)
+
+    @admin.action(description='Скрыть выбранные')
+    def make_not_published(self, request, queryset):
+        queryset.update(is_published=False)
+        self.message_user(request, ngettext("Выбранное обращение скрыто",
+                                            f"Выбранные обращения скрыты {len(queryset)}", len(queryset)),
+                          messages.SUCCESS)
 
 
 admin.site.register(Issue, IssueAdmin)

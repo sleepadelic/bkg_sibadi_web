@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from django.conf import settings
+from django.conf.urls.static import static
 import bkg.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', bkg.views.index, name='index')
-
-]
+    path('', bkg.views.index, name='index'),
+    path('issues_list/', bkg.views.issues_list, name='issues_list'),
+    path('issues_listp/<int:page_num>', bkg.views.issues_list_page, name='issues_list_page')
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
